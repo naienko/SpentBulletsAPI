@@ -99,11 +99,87 @@ namespace SpentBulletsAPI.Controllers
             }
         }
 
+        //GET: get single user with all stacks
+
         //POST: create new
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] User user)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "";
+                    cmd.Parameters.Add(new SqlParameter("@Username", user.username));
+                    cmd.Parameters.Add(new SqlParameter("@Password", user.password));
+                    cmd.Parameters.Add(new SqlParameter("@Email", user.email));
+                    cmd.Parameters.Add(new SqlParameter("@DisplayName", user.display_name));
+                    cmd.Parameters.Add(new SqlParameter("@Role", user.role));
 
-
+                    int newId = (int)cmd.ExecuteScalar();
+                    user.Id = newId;
+                    return CreatedAtRoute("GetUser", new { id = newId }, user);
+                }
+            }
+        }
 
         //PUT: update
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] User user)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "";
+                        cmd.Parameters.Add(new SqlParameter("@Username", user.username));
+                        cmd.Parameters.Add(new SqlParameter("@Password", user.password));
+                        cmd.Parameters.Add(new SqlParameter("@Email", user.email));
+                        cmd.Parameters.Add(new SqlParameter("@DisplayName", user.display_name));
+                        cmd.Parameters.Add(new SqlParameter("@Role", user.role));
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                        }
+                        throw new Exception("No rows affected");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         //DELETE: should I let a user delete their account?
+
+        private bool UserExists(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    return reader.Read();
+                }
+            }
+        }
     }
 }
