@@ -11,11 +11,11 @@ namespace SpentBulletsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class StacksController : ControllerBase
     {
         private readonly IConfiguration _config;
 
-        public UsersController(IConfiguration config)
+        public StacksController(IConfiguration config)
         {
             _config = config;
         }
