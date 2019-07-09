@@ -27,5 +27,11 @@ namespace SpentBulletsAPI.Controllers
                 return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
+
+        //GET: get all
+        //GET: get one
+        //POST: create new
+        //PUT: update
+        //DELETE: delete one stack
     }
 }

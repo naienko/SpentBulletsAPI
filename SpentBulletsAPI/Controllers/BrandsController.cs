@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using SpentBulletsAPI.Models;
 
 namespace SpentBulletsAPI.Controllers
 {
@@ -27,5 +28,58 @@ namespace SpentBulletsAPI.Controllers
                 return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
+
+        [HttpGet]
+        // GET: get all
+        public async Task<IActionResult> Get()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = ""; //sql string goes here
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    List<Brand> brands = new List<Brand>();
+
+                    while (reader.Read())
+                    {
+                        Brand brand = new Brand
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            brand = reader.GetString(reader.GetOrdinal("brand"))
+                        };
+
+                        brands.Add(brand);
+                    }
+                    reader.Close();
+
+                    return Ok(brands);
+                }
+            }
+        }
+
+        [HttpPost]
+        //POST
+        public async Task<IActionResult> Post([FromBody] Brand brand) //RESEARCH NOTE -- not sure about FromBody; how does the data get passed from React's fetch calls to this server-side app
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "";
+                    cmd.Parameters.Add(new SqlParameter("@Brand", brand.brand));
+
+                    int newId = (int)cmd.ExecuteScalar();
+                    brand.Id = newId;
+                    return CreatedAtRoute("GetBrand", new { id = newId }, brand); //RESEARCH NOTE -- not sure about CreatedAtRoute since not doing a single id get
+                }
+            }
+        }
+
+        //PUT: no put, not changing any of the data in here
+
+        //DELETE: no delete, will screw up the stacks table
     }
 }
