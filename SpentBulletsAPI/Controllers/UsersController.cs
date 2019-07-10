@@ -37,7 +37,7 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = ""; //sql string goes here
+                    cmd.CommandText = "SELECT id, username, password, email, display_name, role FROM users"; //sql string goes here
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<User> users = new List<User>();
 
@@ -45,7 +45,7 @@ namespace SpentBulletsAPI.Controllers
                     {
                         User user = new User
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
                             username = reader.GetString(reader.GetOrdinal("username")),
                             password = reader.GetString(reader.GetOrdinal("password")),
                             email = reader.GetString(reader.GetOrdinal("email")),
@@ -71,7 +71,9 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                            FROM users
+                                            WHERE id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -83,7 +85,7 @@ namespace SpentBulletsAPI.Controllers
                         {
                             user = new User
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
                                 username = reader.GetString(reader.GetOrdinal("username")),
                                 password = reader.GetString(reader.GetOrdinal("password")),
                                 email = reader.GetString(reader.GetOrdinal("email")),
@@ -99,7 +101,7 @@ namespace SpentBulletsAPI.Controllers
             }
         }
 
-        //GET: get single user with all stacks
+        //GET: get single user with all stacks?
 
         //POST: create new
         [HttpPost]
@@ -110,7 +112,9 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"INSERT INTO users (username, password, email, display_name, role)
+                                            OUTPUT Inserted.id
+                                            VALUES (@Username, @Password, @Email, @DisplayName, @Role)";
                     cmd.Parameters.Add(new SqlParameter("@Username", user.username));
                     cmd.Parameters.Add(new SqlParameter("@Password", user.password));
                     cmd.Parameters.Add(new SqlParameter("@Email", user.email));
@@ -135,7 +139,9 @@ namespace SpentBulletsAPI.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "";
+                        cmd.CommandText = @"UPDATE users SET username = @Username,
+                                                password = @Password, email = @Email, display_name = @DisplayName,
+                                                role = @Role WHERE id = @id";
                         cmd.Parameters.Add(new SqlParameter("@Username", user.username));
                         cmd.Parameters.Add(new SqlParameter("@Password", user.password));
                         cmd.Parameters.Add(new SqlParameter("@Email", user.email));

@@ -38,7 +38,7 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = ""; //sql string goes here
+                    cmd.CommandText = "SELECT id, brand FROM brands"; //sql string goes here
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Brand> brands = new List<Brand>();
 
@@ -46,7 +46,7 @@ namespace SpentBulletsAPI.Controllers
                     {
                         Brand brand = new Brand
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
                             brand = reader.GetString(reader.GetOrdinal("brand"))
                         };
 
@@ -68,7 +68,9 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"INSERT INTO brands (brand) 
+                                            OUTPUT Inserted.id
+                                            VALUES (@Brand)";
                     cmd.Parameters.Add(new SqlParameter("@Brand", brand.brand));
 
                     int newId = (int)cmd.ExecuteScalar();

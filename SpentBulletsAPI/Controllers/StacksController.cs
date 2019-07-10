@@ -37,7 +37,11 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = ""; //sql string goes here
+                    cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
+                                            FROM stacks s
+                                            JOIN user u ON s.userId = u.id
+                                            JOIN caliber c ON s.caliberId = c.id
+                                            JOIN brand b ON s.brandId = b.id"; //sql string goes here
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Stack> stacks = new List<Stack>();
 
@@ -45,27 +49,27 @@ namespace SpentBulletsAPI.Controllers
                     {
                         Stack stack = new Stack
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
                             amount = reader.GetInt32(reader.GetOrdinal("amount")),
                             grain = reader.GetInt32(reader.GetOrdinal("grain")),
                             notes = reader.GetString(reader.GetOrdinal("notes")),
-                            UserId = reader.GetInt32(reader.GetOrdinal("userid")),
+                            UserId = reader.GetInt32(reader.GetOrdinal("userId")),
                             user = new User
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("userid")),
+                                Id = reader.GetInt32(reader.GetOrdinal("userId")),
                                 username = reader.GetString(reader.GetOrdinal("username")),
                                 email = reader.GetString(reader.GetOrdinal("email"))
                             },
-                            CaliberId = reader.GetInt32(reader.GetOrdinal("caliberid")),
+                            CaliberId = reader.GetInt32(reader.GetOrdinal("caliberId")),
                             caliber = new Caliber
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("caliberid")),
+                                Id = reader.GetInt32(reader.GetOrdinal("caliberId")),
                                 caliber = reader.GetString(reader.GetOrdinal("caliber"))
                             },
-                            BrandId = reader.GetInt32(reader.GetOrdinal("brandid")),
+                            BrandId = reader.GetInt32(reader.GetOrdinal("brandId")),
                             brand = new Brand
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("brandid")),
+                                Id = reader.GetInt32(reader.GetOrdinal("brandId")),
                                 brand = reader.GetString(reader.GetOrdinal("brand"))
                             }
                         };
@@ -88,7 +92,12 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
+                                            FROM stacks s
+                                            JOIN user u ON s.userId = u.id
+                                            JOIN caliber c ON s.caliberId = c.id
+                                            JOIN brand b ON s.brandId = b.id
+                                            WHERE s.id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -100,27 +109,27 @@ namespace SpentBulletsAPI.Controllers
                         {
                             stack = new Stack
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
                                 amount = reader.GetInt32(reader.GetOrdinal("amount")),
                                 grain = reader.GetInt32(reader.GetOrdinal("grain")),
                                 notes = reader.GetString(reader.GetOrdinal("notes")),
-                                UserId = reader.GetInt32(reader.GetOrdinal("userid")),
+                                UserId = reader.GetInt32(reader.GetOrdinal("userId")),
                                 user = new User
                                 {
-                                    Id = reader.GetInt32(reader.GetOrdinal("userid")),
+                                    Id = reader.GetInt32(reader.GetOrdinal("userId")),
                                     username = reader.GetString(reader.GetOrdinal("username")),
                                     email = reader.GetString(reader.GetOrdinal("email"))
                                 },
-                                CaliberId = reader.GetInt32(reader.GetOrdinal("caliberid")),
+                                CaliberId = reader.GetInt32(reader.GetOrdinal("caliberId")),
                                 caliber = new Caliber
                                 {
-                                    Id = reader.GetInt32(reader.GetOrdinal("caliberid")),
+                                    Id = reader.GetInt32(reader.GetOrdinal("caliberId")),
                                     caliber = reader.GetString(reader.GetOrdinal("caliber"))
                                 },
-                                BrandId = reader.GetInt32(reader.GetOrdinal("brandid")),
+                                BrandId = reader.GetInt32(reader.GetOrdinal("brandId")),
                                 brand = new Brand
                                 {
-                                    Id = reader.GetInt32(reader.GetOrdinal("brandid")),
+                                    Id = reader.GetInt32(reader.GetOrdinal("brandId")),
                                     brand = reader.GetString(reader.GetOrdinal("brand"))
                                 }
                             };
@@ -142,7 +151,9 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"INSERT INTO stacks (userId, caliberId, brandId, amount, grain, notes)
+                                            OUTPUT Inserted.id
+                                            VALUES (@UserId, @CaliberId, @BrandId, @Amount, @Grain, @Notes)";
                     cmd.Parameters.Add(new SqlParameter("@UserId", stack.UserId));
                     cmd.Parameters.Add(new SqlParameter("@CaliberId", stack.CaliberId));
                     cmd.Parameters.Add(new SqlParameter("@BrandId", stack.BrandId));
@@ -168,7 +179,7 @@ namespace SpentBulletsAPI.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "";
+                        cmd.CommandText = @"UPDATE stacks SET userId = @UserId, caliberId = @CaliberId, brandId = @BrandId, amount = @Amount, grain = @Grain, notes = @Notes WHERE id = @id";
                         cmd.Parameters.Add(new SqlParameter("@UserId", stack.UserId));
                         cmd.Parameters.Add(new SqlParameter("@CaliberId", stack.CaliberId));
                         cmd.Parameters.Add(new SqlParameter("@BrandId", stack.BrandId));
@@ -209,7 +220,7 @@ namespace SpentBulletsAPI.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "";
+                        cmd.CommandText = "DELETE FROM stacks WHERE id = @id";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
                         int rowsAffected = cmd.ExecuteNonQuery();

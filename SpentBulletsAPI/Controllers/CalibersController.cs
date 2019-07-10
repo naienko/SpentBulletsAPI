@@ -38,7 +38,7 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = ""; //sql string goes here
+                    cmd.CommandText = "SELECT id, caliber FROM calibers"; //sql string goes here
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Caliber> calibers = new List<Caliber>();
 
@@ -46,7 +46,7 @@ namespace SpentBulletsAPI.Controllers
                     {
                         Caliber caliber = new Caliber
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
                             caliber = reader.GetString(reader.GetOrdinal("caliber"))
                         };
 
@@ -68,7 +68,9 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"INSERT INTO calibers (caliber) 
+                                            OUTPUT Inserted.id
+                                            VALUES (@caliber)";
                     cmd.Parameters.Add(new SqlParameter("@Caliber", caliber.caliber));
 
                     int newId = (int)cmd.ExecuteScalar();
