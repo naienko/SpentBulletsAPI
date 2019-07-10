@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using SpentBulletsAPI.Models;
 
 namespace SpentBulletsAPI.Controllers
@@ -21,11 +21,11 @@ namespace SpentBulletsAPI.Controllers
             _config = config;
         }
 
-        public SqlConnection Connection
+        public MySqlConnection Connection
         {
             get
             {
-                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+                return new MySqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
 
@@ -33,13 +33,13 @@ namespace SpentBulletsAPI.Controllers
         // GET: get all
         public async Task<IActionResult> Get()
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT id, caliber FROM calibers"; //sql string goes here
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT id, caliber FROM calibers"; //MySql string goes here
+                    MySqlDataReader reader = cmd.ExecuteReader();
                     List<Caliber> calibers = new List<Caliber>();
 
                     while (reader.Read())
@@ -63,15 +63,15 @@ namespace SpentBulletsAPI.Controllers
         //POST
         public async Task<IActionResult> Post([FromBody] Caliber caliber) //RESEARCH NOTE -- not sure about FromBody; how does the data get passed from React's fetch calls to this server-side app
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO calibers (caliber) 
                                             OUTPUT Inserted.id
                                             VALUES (@caliber)";
-                    cmd.Parameters.Add(new SqlParameter("@Caliber", caliber.caliber));
+                    cmd.Parameters.Add(new MySqlParameter("@Caliber", caliber.caliber));
 
                     int newId = (int)cmd.ExecuteScalar();
                     caliber.Id = newId;

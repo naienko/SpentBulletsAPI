@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using SpentBulletsAPI.Models;
 
 namespace SpentBulletsAPI.Controllers
@@ -21,28 +21,28 @@ namespace SpentBulletsAPI.Controllers
             _config = config;
         }
 
-        public SqlConnection Connection
+        public MySqlConnection Connection
         {
             get
             {
-                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+                return new MySqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
 
         //GET: get all
         public async Task<IActionResult> Get()
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
                                             FROM stacks s
-                                            JOIN user u ON s.userId = u.id
-                                            JOIN caliber c ON s.caliberId = c.id
-                                            JOIN brand b ON s.brandId = b.id"; //sql string goes here
-                    SqlDataReader reader = cmd.ExecuteReader();
+                                            JOIN users u ON s.userId = u.id
+                                            JOIN calibers c ON s.caliberId = c.id
+                                            JOIN brands b ON s.brandId = b.id"; //MySql string goes here
+                    MySqlDataReader reader = cmd.ExecuteReader();
                     List<Stack> stacks = new List<Stack>();
 
                     while (reader.Read())
@@ -87,19 +87,19 @@ namespace SpentBulletsAPI.Controllers
         [HttpGet("{id}", Name = "GetStack")]
         public async Task<IActionResult> Get([FromRoute] int id) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
                                             FROM stacks s
-                                            JOIN user u ON s.userId = u.id
-                                            JOIN caliber c ON s.caliberId = c.id
-                                            JOIN brand b ON s.brandId = b.id
+                                            JOIN users u ON s.userId = u.id
+                                            JOIN calibers c ON s.caliberId = c.id
+                                            JOIN brands b ON s.brandId = b.id
                                             WHERE s.id = @id";
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
+                    MySqlDataReader reader = cmd.ExecuteReader();
 
                     Stack stack = null;
 
@@ -146,20 +146,20 @@ namespace SpentBulletsAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Stack stack)
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO stacks (userId, caliberId, brandId, amount, grain, notes)
                                             OUTPUT Inserted.id
                                             VALUES (@UserId, @CaliberId, @BrandId, @Amount, @Grain, @Notes)";
-                    cmd.Parameters.Add(new SqlParameter("@UserId", stack.UserId));
-                    cmd.Parameters.Add(new SqlParameter("@CaliberId", stack.CaliberId));
-                    cmd.Parameters.Add(new SqlParameter("@BrandId", stack.BrandId));
-                    cmd.Parameters.Add(new SqlParameter("@Amount", stack.amount));
-                    cmd.Parameters.Add(new SqlParameter("@Grain", stack.grain));
-                    cmd.Parameters.Add(new SqlParameter("@Notes", stack.notes));
+                    cmd.Parameters.Add(new MySqlParameter("@UserId", stack.UserId));
+                    cmd.Parameters.Add(new MySqlParameter("@CaliberId", stack.CaliberId));
+                    cmd.Parameters.Add(new MySqlParameter("@BrandId", stack.BrandId));
+                    cmd.Parameters.Add(new MySqlParameter("@Amount", stack.amount));
+                    cmd.Parameters.Add(new MySqlParameter("@Grain", stack.grain));
+                    cmd.Parameters.Add(new MySqlParameter("@Notes", stack.notes));
 
                     int newId = (int)cmd.ExecuteScalar();
                     stack.Id = newId;
@@ -174,18 +174,18 @@ namespace SpentBulletsAPI.Controllers
         {
             try
             {
-                using (SqlConnection conn = Connection)
+                using (MySqlConnection conn = Connection)
                 {
                     conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    using (MySqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"UPDATE stacks SET userId = @UserId, caliberId = @CaliberId, brandId = @BrandId, amount = @Amount, grain = @Grain, notes = @Notes WHERE id = @id";
-                        cmd.Parameters.Add(new SqlParameter("@UserId", stack.UserId));
-                        cmd.Parameters.Add(new SqlParameter("@CaliberId", stack.CaliberId));
-                        cmd.Parameters.Add(new SqlParameter("@BrandId", stack.BrandId));
-                        cmd.Parameters.Add(new SqlParameter("@Amount", stack.amount));
-                        cmd.Parameters.Add(new SqlParameter("@Grain", stack.grain));
-                        cmd.Parameters.Add(new SqlParameter("@Notes", stack.notes));
+                        cmd.Parameters.Add(new MySqlParameter("@UserId", stack.UserId));
+                        cmd.Parameters.Add(new MySqlParameter("@CaliberId", stack.CaliberId));
+                        cmd.Parameters.Add(new MySqlParameter("@BrandId", stack.BrandId));
+                        cmd.Parameters.Add(new MySqlParameter("@Amount", stack.amount));
+                        cmd.Parameters.Add(new MySqlParameter("@Grain", stack.grain));
+                        cmd.Parameters.Add(new MySqlParameter("@Notes", stack.notes));
 
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
@@ -215,13 +215,13 @@ namespace SpentBulletsAPI.Controllers
         {
             try
             {
-                using (SqlConnection conn = Connection)
+                using (MySqlConnection conn = Connection)
                 {
                     conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    using (MySqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = "DELETE FROM stacks WHERE id = @id";
-                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
@@ -247,15 +247,15 @@ namespace SpentBulletsAPI.Controllers
 
         private bool StackExists(int id)
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "";
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
 
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    MySqlDataReader reader = cmd.ExecuteReader();
                     return reader.Read();
                 }
             }

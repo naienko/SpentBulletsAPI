@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using SpentBulletsAPI.Models;
 
 namespace SpentBulletsAPI.Controllers
@@ -21,24 +21,24 @@ namespace SpentBulletsAPI.Controllers
             _config = config;
         }
 
-        public SqlConnection Connection
+        public MySqlConnection Connection
         {
             get
             {
-                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+                return new MySqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
 
         //GET: get all
         public async Task<IActionResult> Get()
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT id, username, password, email, display_name, role FROM users"; //sql string goes here
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT id, username, password, email, display_name, role FROM users"; //MySql string goes here
+                    MySqlDataReader reader = cmd.ExecuteReader();
                     List<User> users = new List<User>();
 
                     while (reader.Read())
@@ -66,16 +66,16 @@ namespace SpentBulletsAPI.Controllers
         [HttpGet("{id}", Name = "GetUser")]
         public async Task<IActionResult> Get([FromRoute] int id) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
                                             FROM users
                                             WHERE id = @id";
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
+                    MySqlDataReader reader = cmd.ExecuteReader();
 
                     User user = null;
 
@@ -107,19 +107,19 @@ namespace SpentBulletsAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] User user)
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO users (username, password, email, display_name, role)
                                             OUTPUT Inserted.id
                                             VALUES (@Username, @Password, @Email, @DisplayName, @Role)";
-                    cmd.Parameters.Add(new SqlParameter("@Username", user.username));
-                    cmd.Parameters.Add(new SqlParameter("@Password", user.password));
-                    cmd.Parameters.Add(new SqlParameter("@Email", user.email));
-                    cmd.Parameters.Add(new SqlParameter("@DisplayName", user.display_name));
-                    cmd.Parameters.Add(new SqlParameter("@Role", user.role));
+                    cmd.Parameters.Add(new MySqlParameter("@Username", user.username));
+                    cmd.Parameters.Add(new MySqlParameter("@Password", user.password));
+                    cmd.Parameters.Add(new MySqlParameter("@Email", user.email));
+                    cmd.Parameters.Add(new MySqlParameter("@DisplayName", user.display_name));
+                    cmd.Parameters.Add(new MySqlParameter("@Role", user.role));
 
                     int newId = (int)cmd.ExecuteScalar();
                     user.Id = newId;
@@ -134,19 +134,19 @@ namespace SpentBulletsAPI.Controllers
         {
             try
             {
-                using (SqlConnection conn = Connection)
+                using (MySqlConnection conn = Connection)
                 {
                     conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    using (MySqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"UPDATE users SET username = @Username,
                                                 password = @Password, email = @Email, display_name = @DisplayName,
                                                 role = @Role WHERE id = @id";
-                        cmd.Parameters.Add(new SqlParameter("@Username", user.username));
-                        cmd.Parameters.Add(new SqlParameter("@Password", user.password));
-                        cmd.Parameters.Add(new SqlParameter("@Email", user.email));
-                        cmd.Parameters.Add(new SqlParameter("@DisplayName", user.display_name));
-                        cmd.Parameters.Add(new SqlParameter("@Role", user.role));
+                        cmd.Parameters.Add(new MySqlParameter("@Username", user.username));
+                        cmd.Parameters.Add(new MySqlParameter("@Password", user.password));
+                        cmd.Parameters.Add(new MySqlParameter("@Email", user.email));
+                        cmd.Parameters.Add(new MySqlParameter("@DisplayName", user.display_name));
+                        cmd.Parameters.Add(new MySqlParameter("@Role", user.role));
 
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
@@ -174,15 +174,15 @@ namespace SpentBulletsAPI.Controllers
 
         private bool UserExists(int id)
         {
-            using (SqlConnection conn = Connection)
+            using (MySqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "";
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
 
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    MySqlDataReader reader = cmd.ExecuteReader();
                     return reader.Read();
                 }
             }
