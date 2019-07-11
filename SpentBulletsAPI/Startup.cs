@@ -32,7 +32,9 @@ namespace SpentBulletsAPI
                 {
                     builder.WithOrigins("http://localhost:3311",
                         "http://localhost:5000",
-                        "http://localhost:3000");
+                        "http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
