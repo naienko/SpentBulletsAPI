@@ -30,6 +30,7 @@ namespace SpentBulletsAPI.Controllers
         }
 
         //GET: get all
+        [HttpGet]
         public async Task<IActionResult> Get()
         {
             using (MySqlConnection conn = Connection)
@@ -64,17 +65,34 @@ namespace SpentBulletsAPI.Controllers
 
         //GET: get one
         [HttpGet("{id}", Name = "GetUser")]
-        public async Task<IActionResult> Get([FromRoute] int id) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
+        public async Task<IActionResult> Get([FromRoute] int id, string username, string password) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
         {
             using (MySqlConnection conn = Connection)
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
-                                            FROM users
-                                            WHERE id = @id";
-                    cmd.Parameters.Add(new MySqlParameter("@id", id));
+                    if (username != null)
+                    {
+                        cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                                FROM users
+                                                WHERE username = @username";
+                        cmd.Parameters.Add(new MySqlParameter("@username", username));
+                    } else if (username != null && password != null)
+                    {
+                        cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                                FROM users
+                                                WHERE username = @username AND password = @password";
+                        cmd.Parameters.Add(new MySqlParameter("@username", username));
+                        cmd.Parameters.Add(new MySqlParameter("@password", password));
+                    } else
+                    {
+                        cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                                FROM users
+                                                WHERE id = @id";
+                        cmd.Parameters.Add(new MySqlParameter("@id", id));
+                    }
+
                     MySqlDataReader reader = cmd.ExecuteReader();
 
                     User user = null;
