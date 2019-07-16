@@ -43,14 +43,18 @@ namespace SpentBulletsAPI.Controllers
                                             JOIN calibers c ON s.caliberId = c.id
                                             JOIN brands b ON s.brandId = b.id";
                     string userQueryLimiter = " WHERE s.userId = @userId";
+
                     cmd.Parameters.Add(new MySqlParameter("@userId", userId));
+
                     if (userId != null)
                     {
                         cmd.CommandText = dataQuery + userQueryLimiter;
-                    } else
+                    }
+                    else
                     {
                         cmd.CommandText = dataQuery;
                     }
+
                     MySqlDataReader reader = cmd.ExecuteReader();
                     List<Stack> stacks = new List<Stack>();
 
@@ -108,13 +112,15 @@ namespace SpentBulletsAPI.Controllers
                                             JOIN brands b ON s.brandId = b.id
                                             WHERE s.id = @id";
                     string userQueryLimiter = " AND s.userId = @userId";
+
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
                     cmd.Parameters.Add(new MySqlParameter("@userId", userId));
 
                     if (userId != null)
                     {
                         cmd.CommandText = dataQuery + userQueryLimiter;
-                    } else
+                    }
+                    else
                     {
                         cmd.CommandText = dataQuery;
 

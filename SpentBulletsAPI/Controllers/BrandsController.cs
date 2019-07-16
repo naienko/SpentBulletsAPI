@@ -31,14 +31,25 @@ namespace SpentBulletsAPI.Controllers
 
         [HttpGet]
         // GET: get all
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string orderBy)
         {
             using (MySqlConnection conn = Connection)
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT id, brand FROM brands"; //MySql string goes here
+                    string dataQuery = "SELECT id, brand FROM brands";
+                    string sortDataLimiter = " ORDER BY brand";
+
+                    if (orderBy == "brand")
+                    {
+                        cmd.CommandText = dataQuery + sortDataLimiter;
+                    }
+                    else
+                    {
+                        cmd.CommandText = dataQuery;
+                    }
+
                     MySqlDataReader reader = cmd.ExecuteReader();
                     List<Brand> brands = new List<Brand>();
 
