@@ -30,18 +30,27 @@ namespace SpentBulletsAPI.Controllers
         }
 
         //GET: get all
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int? userId)
         {
             using (MySqlConnection conn = Connection)
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
+                    string dataQuery = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
                                             FROM stacks s
                                             JOIN users u ON s.userId = u.id
                                             JOIN calibers c ON s.caliberId = c.id
-                                            JOIN brands b ON s.brandId = b.id"; //MySql string goes here
+                                            JOIN brands b ON s.brandId = b.id";
+                    string userQueryLimiter = " WHERE s.userId = @userId";
+                    cmd.Parameters.Add(new MySqlParameter("@userId", userId));
+                    if (userId != null)
+                    {
+                        cmd.CommandText = dataQuery + userQueryLimiter;
+                    } else
+                    {
+                        cmd.CommandText = dataQuery;
+                    }
                     MySqlDataReader reader = cmd.ExecuteReader();
                     List<Stack> stacks = new List<Stack>();
 
@@ -85,20 +94,32 @@ namespace SpentBulletsAPI.Controllers
 
         //GET: get one
         [HttpGet("{id}", Name = "GetStack")]
-        public async Task<IActionResult> Get([FromRoute] int id) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
+        public async Task<IActionResult> Get([FromRoute] int id, int? userId) // RESEARCH NOTE -- does FromRoute still work when crossing from React to C#
         {
             using (MySqlConnection conn = Connection)
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
+                    string dataQuery = @"SELECT s.id, s.amount, s.grain, s.notes, s.userId, u.username, u.email, s.caliberId, c.caliber, s.brandId, b.brand 
                                             FROM stacks s
                                             JOIN users u ON s.userId = u.id
                                             JOIN calibers c ON s.caliberId = c.id
                                             JOIN brands b ON s.brandId = b.id
                                             WHERE s.id = @id";
+                    string userQueryLimiter = " AND s.userId = @userId";
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
+                    cmd.Parameters.Add(new MySqlParameter("@userId", userId));
+
+                    if (userId != null)
+                    {
+                        cmd.CommandText = dataQuery + userQueryLimiter;
+                    } else
+                    {
+                        cmd.CommandText = dataQuery;
+
+                    }
+
                     MySqlDataReader reader = cmd.ExecuteReader();
 
                     Stack stack = null;
@@ -179,7 +200,8 @@ namespace SpentBulletsAPI.Controllers
                     conn.Open();
                     using (MySqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"UPDATE stacks SET userId = @UserId, caliberId = @CaliberId, brandId = @BrandId, amount = @Amount, grain = @Grain, notes = @Notes WHERE id = @id";
+                        cmd.CommandText = @"UPDATE stacks SET userId = @UserId, caliberId = @CaliberId, brandId = @BrandId, amount = @Amount, grain = @Grain, 
+                                                notes = @Notes WHERE id = @id";
                         cmd.Parameters.Add(new MySqlParameter("@UserId", stack.UserId));
                         cmd.Parameters.Add(new MySqlParameter("@CaliberId", stack.CaliberId));
                         cmd.Parameters.Add(new MySqlParameter("@BrandId", stack.BrandId));
