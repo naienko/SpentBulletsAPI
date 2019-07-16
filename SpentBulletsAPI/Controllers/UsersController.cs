@@ -199,7 +199,7 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = "SELECT username, password, email, role, display_name FROM users WHERE id = @id";
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                     MySqlDataReader reader = cmd.ExecuteReader();

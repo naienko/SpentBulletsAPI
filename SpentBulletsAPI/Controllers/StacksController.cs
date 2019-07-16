@@ -280,7 +280,8 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "";
+                    cmd.CommandText = @"SELECT id, userId, caliberId, brandId, grain, amount, notes 
+                                        FROM stacks WHERE Id = @id";
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                     MySqlDataReader reader = cmd.ExecuteReader();
