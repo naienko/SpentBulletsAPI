@@ -206,14 +206,10 @@ namespace SpentBulletsAPI.Controllers
                     conn.Open();
                     using (MySqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"UPDATE stacks SET userId = @UserId, caliberId = @CaliberId, brandId = @BrandId, amount = @Amount, grain = @Grain, 
-                                                notes = @Notes WHERE id = @id";
-                        cmd.Parameters.Add(new MySqlParameter("@UserId", stack.UserId));
-                        cmd.Parameters.Add(new MySqlParameter("@CaliberId", stack.CaliberId));
-                        cmd.Parameters.Add(new MySqlParameter("@BrandId", stack.BrandId));
+                        cmd.CommandText = @"UPDATE stacks SET amount = @Amount, notes = @Notes WHERE id = @id";
                         cmd.Parameters.Add(new MySqlParameter("@Amount", stack.amount));
-                        cmd.Parameters.Add(new MySqlParameter("@Grain", stack.grain));
                         cmd.Parameters.Add(new MySqlParameter("@Notes", stack.notes));
+                        cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
@@ -281,7 +277,7 @@ namespace SpentBulletsAPI.Controllers
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT id, userId, caliberId, brandId, grain, amount, notes 
-                                        FROM stacks WHERE Id = @id";
+                                        FROM stacks WHERE id = @id";
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                     MySqlDataReader reader = cmd.ExecuteReader();

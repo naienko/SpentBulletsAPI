@@ -167,6 +167,7 @@ namespace SpentBulletsAPI.Controllers
                         cmd.Parameters.Add(new MySqlParameter("@Email", user.email));
                         cmd.Parameters.Add(new MySqlParameter("@DisplayName", user.display_name));
                         cmd.Parameters.Add(new MySqlParameter("@Role", user.role));
+                        cmd.Parameters.Add(new MySqlParameter("@id", id));
 
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
