@@ -131,15 +131,17 @@ namespace SpentBulletsAPI.Controllers
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO users (username, password, email, display_name, role)
-                                            OUTPUT Inserted.id
                                             VALUES (@Username, @Password, @Email, @DisplayName, @Role)";
+                                            //OUTPUT INSERTED.id 
                     cmd.Parameters.Add(new MySqlParameter("@Username", user.username));
                     cmd.Parameters.Add(new MySqlParameter("@Password", user.password));
                     cmd.Parameters.Add(new MySqlParameter("@Email", user.email));
                     cmd.Parameters.Add(new MySqlParameter("@DisplayName", user.display_name));
                     cmd.Parameters.Add(new MySqlParameter("@Role", user.role));
 
-                    int newId = (int)cmd.ExecuteScalar();
+                    cmd.ExecuteNonQuery();
+                    int newId = (int)cmd.LastInsertedId;
+                    //int newId = (int)cmd.ExecuteScalar();
                     user.Id = newId;
                     return CreatedAtRoute("GetUser", new { id = newId }, user);
                 }

@@ -69,7 +69,7 @@ namespace SpentBulletsAPI.Controllers
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO brands (brand) 
-                                            OUTPUT Inserted.id
+                                            OUTPUT INSERTED.id
                                             VALUES (@Brand)";
                     cmd.Parameters.Add(new MySqlParameter("@Brand", brand.brand));
 
