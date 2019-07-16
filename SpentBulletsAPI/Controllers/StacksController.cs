@@ -152,7 +152,6 @@ namespace SpentBulletsAPI.Controllers
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO stacks (userId, caliberId, brandId, amount, grain, notes)
-                                            OUTPUT INSERTED.id
                                             VALUES (@UserId, @CaliberId, @BrandId, @Amount, @Grain, @Notes)";
                     cmd.Parameters.Add(new MySqlParameter("@UserId", stack.UserId));
                     cmd.Parameters.Add(new MySqlParameter("@CaliberId", stack.CaliberId));
@@ -161,7 +160,8 @@ namespace SpentBulletsAPI.Controllers
                     cmd.Parameters.Add(new MySqlParameter("@Grain", stack.grain));
                     cmd.Parameters.Add(new MySqlParameter("@Notes", stack.notes));
 
-                    int newId = (int)cmd.ExecuteScalar();
+                    cmd.ExecuteNonQuery();
+                    int newId = (int)cmd.LastInsertedId;
                     stack.Id = newId;
                     return CreatedAtRoute("GetUser", new { id = newId }, stack);
                 }

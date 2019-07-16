@@ -69,11 +69,11 @@ namespace SpentBulletsAPI.Controllers
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO brands (brand) 
-                                            OUTPUT INSERTED.id
                                             VALUES (@Brand)";
                     cmd.Parameters.Add(new MySqlParameter("@Brand", brand.brand));
 
-                    int newId = (int)cmd.ExecuteScalar();
+                    cmd.ExecuteNonQuery();
+                    int newId = (int)cmd.LastInsertedId;
                     brand.Id = newId;
                     return CreatedAtRoute("GetBrand", new { id = newId }, brand); //RESEARCH NOTE -- not sure about CreatedAtRoute since not doing a single id get
                 }
