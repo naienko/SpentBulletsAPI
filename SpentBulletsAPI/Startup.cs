@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SpentBulletsAPI.Models;
 
 namespace SpentBulletsAPI
 {
@@ -39,6 +40,7 @@ namespace SpentBulletsAPI
                         .AllowAnyMethod();
                 });
             });
+            services.Add(new ServiceDescriptor(typeof(Context), new Context(Configuration.GetConnectionString("DefaultConnection"))));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
