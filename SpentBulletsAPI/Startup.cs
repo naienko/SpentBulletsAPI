@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,8 @@ namespace SpentBulletsAPI
                 {
                     builder.WithOrigins("http://localhost:3311",
                         "http://localhost:5000",
-                        "http://localhost:3000")
+                        "http://localhost:3000",
+                        "http://spent-bullets.firechildren.net")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
@@ -47,6 +49,10 @@ namespace SpentBulletsAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseCors(CorsLocalPolicy);
 
