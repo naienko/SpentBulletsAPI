@@ -25,6 +25,7 @@ namespace SpentBulletsAPI.Controllers
         {
             get
             {
+                Console.WriteLine($"connection string is " + _config.GetConnectionString("DefaultConnection"));
                 return new MySqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
