@@ -25,21 +25,39 @@ namespace SpentBulletsAPI.Controllers
         {
             get
             {
-                Console.WriteLine($"connection string is " + _config.GetConnectionString("DefaultConnection"));
                 return new MySqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
 
         //GET: get all
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string username, string password)
         {
             using (MySqlConnection conn = Connection)
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT id, username, password, email, display_name, role FROM users"; //MySql string goes here
+                    if (username != null)
+                    {
+                        cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                                FROM users
+                                                WHERE username = @username";
+                        cmd.Parameters.Add(new MySqlParameter("@username", username));
+                    }
+                    else if (username != null && password != null)
+                    {
+                        cmd.CommandText = @"SELECT id, username, password, email, display_name, role 
+                                                FROM users
+                                                WHERE username = @username AND password = @password";
+                        cmd.Parameters.Add(new MySqlParameter("@username", username));
+                        cmd.Parameters.Add(new MySqlParameter("@password", password));
+                    }
+                    else
+                    {
+                        cmd.CommandText = "SELECT id, username, password, email, display_name, role FROM users"; //MySql string goes here
+                    }
+
                     MySqlDataReader reader = cmd.ExecuteReader();
                     List<User> users = new List<User>();
 
@@ -94,6 +112,7 @@ namespace SpentBulletsAPI.Controllers
                         cmd.Parameters.Add(new MySqlParameter("@id", id));
                     }
 
+                    Console.WriteLine(cmd.CommandText);
                     MySqlDataReader reader = cmd.ExecuteReader();
 
                     User user = null;
