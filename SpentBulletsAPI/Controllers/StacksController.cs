@@ -190,7 +190,7 @@ namespace SpentBulletsAPI.Controllers
                     cmd.ExecuteNonQuery();
                     int newId = (int)cmd.LastInsertedId;
                     stack.Id = newId;
-                    return CreatedAtRoute("GetUser", new { id = newId }, stack);
+                    return CreatedAtRoute("GetStack", new { id = newId }, stack);
                 }
             }
         }
