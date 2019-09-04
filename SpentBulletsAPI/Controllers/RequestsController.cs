@@ -37,8 +37,8 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    string dataQuery = @"SELECT r.id, r.name, r.typeId, r.userId, u.username, u.email, r.desc  
-                                            FROM stacks r
+                    string dataQuery = @"SELECT r.id, r.name, r.typeId, r.userId, u.username, u.email, r.about  
+                                            FROM requests r
                                             JOIN users u ON r.userId = u.id";
 
                     cmd.CommandText = dataQuery;
@@ -60,7 +60,7 @@ namespace SpentBulletsAPI.Controllers
                                 username = reader.GetString(reader.GetOrdinal("username")),
                                 email = reader.GetString(reader.GetOrdinal("email"))
                             },
-                            desc = reader.GetString(reader.GetOrdinal("desc"))
+                            about = reader.GetString(reader.GetOrdinal("about"))
                         };
 
                         requests.Add(request);
@@ -81,8 +81,8 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    string dataQuery = @"SELECT r.id, r.name, r.typeId, r.userId, u.username, u.email, r.desc  
-                                            FROM stacks r
+                    string dataQuery = @"SELECT r.id, r.name, r.typeId, r.userId, u.username, u.email, r.about  
+                                            FROM requests r
                                             JOIN users u ON r.userId = u.id
                                             WHERE r.id = @id";
 
@@ -108,7 +108,7 @@ namespace SpentBulletsAPI.Controllers
                                     username = reader.GetString(reader.GetOrdinal("username")),
                                     email = reader.GetString(reader.GetOrdinal("email"))
                                 },
-                                desc = reader.GetString(reader.GetOrdinal("desc"))
+                                about = reader.GetString(reader.GetOrdinal("about"))
                             };
                         }
                     }
@@ -128,12 +128,12 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"INSERT INTO requests (name, TypeId, UserId, desc)
-                                            VALUES (@Name, @TypeId, @UserId, @Desc)";
+                    cmd.CommandText = @"INSERT INTO requests (name, typeId, userId, about)
+                                            VALUES (@Name, @TypeId, @UserId, @About)";
                     cmd.Parameters.Add(new MySqlParameter("@Name", request.name));
                     cmd.Parameters.Add(new MySqlParameter("@TypeId", request.TypeId));
                     cmd.Parameters.Add(new MySqlParameter("@UserId", request.UserId));
-                    cmd.Parameters.Add(new MySqlParameter("@Desc", request.desc));
+                    cmd.Parameters.Add(new MySqlParameter("@About", request.about));
 
                     cmd.ExecuteNonQuery();
                     int newId = (int)cmd.LastInsertedId;
@@ -188,7 +188,7 @@ namespace SpentBulletsAPI.Controllers
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT id, name, typeId, userId, desc 
+                    cmd.CommandText = @"SELECT id, name, typeId, userId, about 
                                         FROM requests WHERE id = @id";
                     cmd.Parameters.Add(new MySqlParameter("@id", id));
 

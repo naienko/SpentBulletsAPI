@@ -112,7 +112,6 @@ namespace SpentBulletsAPI.Controllers
                         cmd.Parameters.Add(new MySqlParameter("@id", id));
                     }
 
-                    Console.WriteLine(cmd.CommandText);
                     MySqlDataReader reader = cmd.ExecuteReader();
 
                     User user = null;

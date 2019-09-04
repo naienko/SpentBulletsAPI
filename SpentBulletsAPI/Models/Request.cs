@@ -19,6 +19,6 @@ namespace SpentBulletsAPI.Models
         public int UserId { get; set; }
         public User user { get; set; }
         [Required]
-        public string desc { get; set; }
+        public string about { get; set; }
     }
 }
