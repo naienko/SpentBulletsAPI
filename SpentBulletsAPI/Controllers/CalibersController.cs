@@ -70,6 +70,41 @@ namespace SpentBulletsAPI.Controllers
             }
         }
 
+        //GET: get one
+        [HttpGet("{id}", Name = "GetCaliber")]
+        public async Task<IActionResult> Get([FromRoute] int id)
+        {
+            using (MySqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT id, caliber FROM caliber
+                                                WHERE id = @id";
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    Caliber caliber = null;
+
+                    while (reader.Read())
+                    {
+                        if (caliber == null)
+                        {
+                            caliber = new Caliber
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                                caliber = reader.GetString(reader.GetOrdinal("caliber"))
+                            };
+                        }
+                    }
+                    reader.Close();
+
+                    return Ok(caliber);
+                }
+            }
+        }
+
         [HttpPost]
         //POST
         public async Task<IActionResult> Post([FromBody] Caliber caliber) //RESEARCH NOTE -- not sure about FromBody; how does the data get passed from React's fetch calls to this server-side app
@@ -86,7 +121,7 @@ namespace SpentBulletsAPI.Controllers
                     cmd.ExecuteNonQuery();
                     int newId = (int)cmd.LastInsertedId;
                     caliber.Id = newId;
-                    return CreatedAtRoute("GetCaliber", new { id = newId }, caliber); //RESEARCH NOTE -- not sure about CreatedAtRoute since not doing a single id get
+                    return CreatedAtRoute("GetCaliber", new { id = newId }, caliber);
                 }
             }
         }

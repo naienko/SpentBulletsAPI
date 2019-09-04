@@ -70,6 +70,41 @@ namespace SpentBulletsAPI.Controllers
             }
         }
 
+        //GET: get one
+        [HttpGet("{id}", Name = "GetBrand")]
+        public async Task<IActionResult> Get([FromRoute] int id)
+        {
+            using (MySqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT id, brand FROM brand
+                                                WHERE id = @id";
+                    cmd.Parameters.Add(new MySqlParameter("@id", id));
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    Brand brand = null;
+
+                    while (reader.Read())
+                    {
+                        if (brand == null)
+                        {
+                            brand = new Brand
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                                brand = reader.GetString(reader.GetOrdinal("brand"))
+                            };
+                        }
+                    }
+                    reader.Close();
+
+                    return Ok(brand);
+                }
+            }
+        }
+
         [HttpPost]
         //POST
         public async Task<IActionResult> Post([FromBody] Brand brand) //RESEARCH NOTE -- not sure about FromBody; how does the data get passed from React's fetch calls to this server-side app
@@ -86,7 +121,7 @@ namespace SpentBulletsAPI.Controllers
                     cmd.ExecuteNonQuery();
                     int newId = (int)cmd.LastInsertedId;
                     brand.Id = newId;
-                    return CreatedAtRoute("GetBrand", new { id = newId }, brand); //RESEARCH NOTE -- not sure about CreatedAtRoute since not doing a single id get
+                    return CreatedAtRoute("GetBrand", new { id = newId }, brand);
                 }
             }
         }
